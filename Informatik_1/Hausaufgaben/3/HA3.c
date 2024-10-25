@@ -3,7 +3,6 @@
 
 #include <stdio.h>
 #include <conio.h>
-#include <locale.h>
 
 int main()
 {
@@ -18,8 +17,6 @@ int main()
 
     int Pqm = 1000; // Strahlungsleistung der Sonne [W/m²]
     
-    // Setze die locale auf die aktuelle Umgebung
-    setlocale(LC_ALL, "");
     
     // 3.1
     printf("pls enter required Maximalleistung [Watt Peak]\n");
