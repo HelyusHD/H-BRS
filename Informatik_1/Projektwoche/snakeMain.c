@@ -70,9 +70,10 @@ int main(){
         start_time = clock();
         snake_move(snake, snake -> dir);
         printScreen(snake);
-        while((clock() - start_time) / CLOCKS_PER_SEC <= 0.24){
-            usleep(10000); // 10 ms Pause
-            if(kbhit()){ 
+//        while((clock() - start_time) / (float)CLOCKS_PER_SEC <= 0.25){
+        if(1) {
+            //usleep(10000); // 10 ms Pause
+            if(kbhit()){
                 taste = getch();
                 if (taste == 224) { // Sondertasten starten mit 224
                     taste = getch(); // zweiten Wert lesen
