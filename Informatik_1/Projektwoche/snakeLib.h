@@ -1,8 +1,8 @@
-// snake_logic.h
+// snakeLib.h
 #include <stdlib.h> // für malloc und free
 #include <stdbool.h> // Für den bool-Typ
-#ifndef SNAKE_LOGIC_H
-#define SNAKE_LOGIC_H
+#ifndef SNAKE_LIB_H
+#define SNAKE_LIB_H
 
 // Richtungen, in die die Schlange sich bewegen kann
 typedef enum {
@@ -93,5 +93,5 @@ void snake_move(Snake *snake, Direction dir){
     // moving head of snake
     snake->body[0] = add_position(snake->body[0], direction);
 }
-#endif // SNAKE_LOGIC_H
+#endif // SNAKE_LIB_H
 
