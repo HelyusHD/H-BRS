@@ -13,6 +13,7 @@
 
 #define EMPTYSPACE '.'
 #define FOODSPACE 'O'
+#define SNAKESPACE 'S'
 
 HANDLE h;
 COORD coord;
@@ -24,26 +25,17 @@ void initScreen(Snake* snake)
 {
     for(int y = 0; y < MAX_Y; y++){
         for(int x = 0; x < MAX_X; x++){
-            int foundSnake = 0;
             for(int i=0; i <= snake->size-1; i++){
                 Position snakePos = snake->body[i];
-                if(snakePos.x == x && snakePos.y == y){
-                    foundSnake = 1;
-                }
-                if(foundSnake == 1){
-                    screen[y][x] = 'S';
-                }
-                else if(food.x == x && food.y == y){
-                    screen[y][x] = 'O';
-                }
-                else{
-                    screen[y][x] = EMPTYSPACE;
-                }
+                screen[y][x] = EMPTYSPACE;
             }
         }
         screen[y][MAX_X-1] = '\n';
     }
     screen[MAX_Y-1][MAX_X] = '\0';
+    for(int i = 0; i < snake->size; i++){
+        screen[snake->body[i].y][snake->body[i].x] = SNAKESPACE;
+    }
 }
 
 void spawnFood(Snake* snake){
@@ -86,7 +78,7 @@ bool snake_move(Snake *snake, Direction dir){
     if(snakeHead.x < 0 || snakeHead.y < 0 || snakeHead.x > MAX_X-1 || snakeHead.y > MAX_Y-1){return true;} // death by wall
 
     // setting new position of snake
-    screen[snakeHead.y][snakeHead.x] = 'S';
+    screen[snakeHead.y][snakeHead.x] = SNAKESPACE;
 
     // shifting positions of segments
     Position tailBuffer = snake->body[snake->size-1]; // if we grow we copy the tail back into existence
@@ -134,8 +126,8 @@ int main(){
     while ((ch = getch()) != 13) {}
     system("cls"); // Terminal leeren (nur Windows)
 
-    spawnFood(snake);
     initScreen(snake);
+    spawnFood(snake);
 
     // ticke-clock
     do {
