@@ -11,15 +11,17 @@
 #define MAX_X 80
 #define MAX_Y 25
 
+#define EMPTYSPACE '.'
+#define FOODSPACE 'O'
+
 HANDLE h;
 COORD coord;
 Position food;
+char screen[MAX_Y][MAX_X];
 
 
-
-void printScreen(Snake* snake)
+void initScreen(Snake* snake)
 {
-    char screen[MAX_Y][MAX_X];
     for(int y = 0; y < MAX_Y; y++){
         for(int x = 0; x < MAX_X; x++){
             int foundSnake = 0;
@@ -35,16 +37,13 @@ void printScreen(Snake* snake)
                     screen[y][x] = 'O';
                 }
                 else{
-                    screen[y][x] = '.';
+                    screen[y][x] = EMPTYSPACE;
                 }
             }
         }
         screen[y][MAX_X-1] = '\n';
     }
     screen[MAX_Y-1][MAX_X] = '\0';
-    //system("cls"); // Terminal leeren (nur Windows)
-    SetConsoleCursorPosition(h, coord);
-    printf(screen[0]);
 }
 
 void spawnFood(Snake* snake){
@@ -60,6 +59,7 @@ void spawnFood(Snake* snake){
         }
     }
     }while(foodInsideSnake);
+    screen[food.y][food.x] = FOODSPACE;
 }
 
 
@@ -85,6 +85,9 @@ bool snake_move(Snake *snake, Direction dir){
 
     if(snakeHead.x < 0 || snakeHead.y < 0 || snakeHead.x > MAX_X-1 || snakeHead.y > MAX_Y-1){return true;} // death by wall
 
+    // setting new position of snake
+    screen[snakeHead.y][snakeHead.x] = 'S';
+
     // shifting positions of segments
     Position tailBuffer = snake->body[snake->size-1]; // if we grow we copy the tail back into existence
     for(int i=snake->size-1; i >= 1; i--){
@@ -100,12 +103,16 @@ bool snake_move(Snake *snake, Direction dir){
         snake->body[snake->size] = tailBuffer;
         snake->size++;
         spawnFood(snake);
+    }else{
+        screen[tailBuffer.y][tailBuffer.x] = EMPTYSPACE;
     }
     return false;
 }
 
 
 int main(){
+    // Codepage 437 aktivieren
+    system("chcp 437 > nul");
     srand (time(NULL));
     h = GetStdHandle ( STD_OUTPUT_HANDLE );
     coord.X = 0;
@@ -123,16 +130,19 @@ int main(){
 
     setlocale(LC_ALL, ""); // Setze die Locale für UTF-8
     titleScreen();
+    printf("\033[31mDies ist roter Text.\n");
     while ((ch = getch()) != 13) {}
     system("cls"); // Terminal leeren (nur Windows)
 
     spawnFood(snake);
+    initScreen(snake);
 
     // ticke-clock
     do {
         start_time = clock();
         game_over = snake_move(snake, snake -> dir);
-        printScreen(snake);
+        SetConsoleCursorPosition(h, coord);
+        printf(screen[0]);
         //while((clock() - start_time) / (float)CLOCKS_PER_SEC <= 0.25){
         if(1) {
             Sleep(50); // 100 ms Pause
@@ -162,7 +172,7 @@ int main(){
     } 
     while(!game_over);
 
-    printf("\nq' zum Beenden.\n");
+    printf("\n'q' to quit.\n");
     // Endlosschleife, bis 'q' gedrückt wird
     while (1) {
         ch = getch(); // Wartet auf einen Tastendruck
