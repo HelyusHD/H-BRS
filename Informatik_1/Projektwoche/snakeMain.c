@@ -8,17 +8,20 @@
 #include "snakeLib.h"
 #include "titleScreen.h"
 
-int max_x, max_y;
+#define MAX_X 80
+#define MAX_Y 25
+
 HANDLE h;
-COORD coord; 
+COORD coord;
+Position food;
 
 
 
 void printScreen(Snake* snake)
 {
-    char screen[max_y][max_x];
-    for(int y = 0; y<= max_y-1; y++){
-        for(int x = 0; x<= max_x-2; x++){
+    char screen[MAX_Y][MAX_X];
+    for(int y = 0; y < MAX_Y; y++){
+        for(int x = 0; x < MAX_X; x++){
             int foundSnake = 0;
             for(int i=0; i <= snake->size-1; i++){
                 Position snakePos = snake->body[i];
@@ -28,24 +31,75 @@ void printScreen(Snake* snake)
                 if(foundSnake == 1){
                     screen[y][x] = 'S';
                 }
+                else if(food.x == x && food.y == y){
+                    screen[y][x] = 'O';
+                }
                 else{
                     screen[y][x] = '.';
                 }
             }
         }
-        screen[y][max_x-1] = '\n';
+        screen[y][MAX_X-1] = '\n';
     }
-    screen[max_y-1][max_x-1] = '\0';
+    screen[MAX_Y-1][MAX_X] = '\0';
     //system("cls"); // Terminal leeren (nur Windows)
     SetConsoleCursorPosition(h, coord);
     printf(screen[0]);
 }
 
+void spawnFood(Snake* snake){
+    bool foodInsideSnake;
+    do{
+    foodInsideSnake = false;
+    food.x = rand() % (MAX_X-1);
+    food.y = rand() % (MAX_Y-1);
+    for(int i=0; i < snake->size; i++){
+        if(same_position(snake->body[i],food)){
+            foodInsideSnake = true;
+            break;
+        }
+    }
+    }while(foodInsideSnake);
+}
+
+
+//changes the position of the snake
+void snake_move(Snake *snake, Direction dir){
+    Position direction = {0, 0};
+    switch(dir){
+        case UP :
+            direction.y = -1;
+            break;
+        case DOWN:
+            direction.y = 1;
+            break;
+        case LEFT:
+            direction.x = -1;
+            break;
+        case RIGHT:
+            direction.x = 1;
+            break;
+    }
+    // shifting positions of segments
+    Position tailBuffer = snake->body[snake->size-1]; // if we grow we copy the tail back into existence
+    for(int i=snake->size-1; i >= 1; i--){
+        snake->body[i] = snake->body[i-1];
+    }
+    // moving head of snake
+    snake->body[0] = add_position(snake->body[0], direction);
+
+    // eating food
+    if(same_position(snake->body[0], food)){
+        snake->body[snake->size] = tailBuffer;
+        snake->size++;
+        spawnFood(snake);
+    }
+
+}
 
 
 int main(){
-    max_x=80+1;
-    max_y=25;
+    srand (time(NULL));
     h = GetStdHandle ( STD_OUTPUT_HANDLE );
     coord.X = 0;
     coord.Y = 0;
@@ -58,21 +112,23 @@ int main(){
     Position startPos = {10, 13}; // {x|y}
     int initial_size = 8;
     Direction initial_direction = RIGHT;
-    Snake* snake = snake_create(initial_size, initial_direction, startPos);
+    Snake* snake = snake_create(initial_size, initial_direction, startPos, MAX_X * MAX_Y);
 
     setlocale(LC_ALL, ""); // Setze die Locale für UTF-8
     titleScreen();
     while ((ch = getch()) != 13) {}
     system("cls"); // Terminal leeren (nur Windows)
 
+    spawnFood(snake);
+
     // ticke-clock
     do {
         start_time = clock();
         snake_move(snake, snake -> dir);
         printScreen(snake);
-//        while((clock() - start_time) / (float)CLOCKS_PER_SEC <= 0.25){
+        //while((clock() - start_time) / (float)CLOCKS_PER_SEC <= 0.25){
         if(1) {
-            //usleep(10000); // 10 ms Pause
+            //Sleep(100); // 100 ms Pause
             if(kbhit()){
                 taste = getch();
                 if (taste == 224) { // Sondertasten starten mit 224
