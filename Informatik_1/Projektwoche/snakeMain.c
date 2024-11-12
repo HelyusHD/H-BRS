@@ -64,7 +64,7 @@ void spawnFood(Snake* snake){
 
 
 //changes the position of the snake
-void snake_move(Snake *snake, Direction dir){
+bool snake_move(Snake *snake, Direction dir){
     Position direction = {0, 0};
     switch(dir){
         case UP :
@@ -80,21 +80,28 @@ void snake_move(Snake *snake, Direction dir){
             direction.x = 1;
             break;
     }
+
+    Position snakeHead = add_position(snake->body[0], direction);
+
+    if(snakeHead.x < 0 || snakeHead.y < 0 || snakeHead.x > MAX_X-1 || snakeHead.y > MAX_Y-1){return true;} // death by wall
+
     // shifting positions of segments
     Position tailBuffer = snake->body[snake->size-1]; // if we grow we copy the tail back into existence
     for(int i=snake->size-1; i >= 1; i--){
+        if(same_position(snake->body[i], snakeHead)){return true;} // death by self eating
         snake->body[i] = snake->body[i-1];
     }
     // moving head of snake
-    snake->body[0] = add_position(snake->body[0], direction);
+    snake->body[0] = snakeHead;
+
 
     // eating food
-    if(same_position(snake->body[0], food)){
+    if(same_position(snakeHead, food)){
         snake->body[snake->size] = tailBuffer;
         snake->size++;
         spawnFood(snake);
     }
-
+    return false;
 }
 
 
@@ -124,11 +131,11 @@ int main(){
     // ticke-clock
     do {
         start_time = clock();
-        snake_move(snake, snake -> dir);
+        game_over = snake_move(snake, snake -> dir);
         printScreen(snake);
         //while((clock() - start_time) / (float)CLOCKS_PER_SEC <= 0.25){
         if(1) {
-            //Sleep(100); // 100 ms Pause
+            Sleep(50); // 100 ms Pause
             if(kbhit()){
                 taste = getch();
                 if (taste == 224) { // Sondertasten starten mit 224
