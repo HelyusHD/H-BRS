@@ -55,26 +55,25 @@ void spawnFood(Snake* snake){
 }
 
 
-//changes the position of the snake
-bool snake_move(Snake *snake, Direction dir){
+
+bool gameTick(Snake *snake, Direction dir){
+    //calculating new snake head position
     Position direction = {0, 0};
     switch(dir){
         case UP :
-            direction.y = -1;
+            if(snake->dir != DOWN){direction.y = -1;}
             break;
         case DOWN:
-            direction.y = 1;
+            if(snake->dir != UP){direction.y = 1;}
             break;
         case LEFT:
-            direction.x = -1;
+            if(snake->dir != RIGHT){direction.x = -1;}
             break;
         case RIGHT:
-            direction.x = 1;
+            if(snake->dir != LEFT){direction.x = 1;}
             break;
     }
-
     Position snakeHead = add_position(snake->body[0], direction);
-
     if(snakeHead.x < 0 || snakeHead.y < 0 || snakeHead.x > MAX_X-1 || snakeHead.y > MAX_Y-1){return true;} // death by wall
 
     // setting new position of snake
@@ -82,13 +81,16 @@ bool snake_move(Snake *snake, Direction dir){
 
     // shifting positions of segments
     Position tailBuffer = snake->body[snake->size-1]; // if we grow we copy the tail back into existence
+    bool collisionWithSnake = false;
     for(int i=snake->size-1; i >= 1; i--){
-        if(same_position(snake->body[i], snakeHead)){return true;} // death by self eating
+        // death by self eating
+        if(same_position(snake->body[i], snakeHead)){
+            collisionWithSnake = true;
+        }
         snake->body[i] = snake->body[i-1];
     }
     // moving head of snake
     snake->body[0] = snakeHead;
-
 
     // eating food
     if(same_position(snakeHead, food)){
@@ -98,11 +100,28 @@ bool snake_move(Snake *snake, Direction dir){
     }else{
         screen[tailBuffer.y][tailBuffer.x] = EMPTYSPACE;
     }
+
+    // blinking death animation for death by self collision
+    if(collisionWithSnake){
+        for(int i = snake->size-1; i >= 0; i--){
+            screen[snake->body[0].y][snake->body[0].x] = SNAKESPACE;
+            screen[snake->body[i].y][snake->body[i].x] = EMPTYSPACE;
+            SetConsoleCursorPosition(h, coord);
+            printf(screen[0]);
+            Sleep(50);
+            screen[snake->body[0].y][snake->body[0].x] = 'X';
+            SetConsoleCursorPosition(h, coord);
+            printf(screen[0]);
+            Sleep(50);
+        }
+        return true;
+    }
     return false;
 }
 
 
 int main(){
+    STARTAGAIN:
     // Codepage 437 aktivieren
     system("chcp 437 > nul");
     srand (time(NULL));
@@ -121,6 +140,7 @@ int main(){
     Snake* snake = snake_create(initial_size, initial_direction, startPos, MAX_X * MAX_Y);
 
     setlocale(LC_ALL, ""); // Setze die Locale für UTF-8
+    SetConsoleCursorPosition(h, coord);
     titleScreen();
     printf("\033[31mDies ist roter Text.\n");
     while ((ch = getch()) != 13) {}
@@ -132,12 +152,12 @@ int main(){
     // ticke-clock
     do {
         start_time = clock();
-        game_over = snake_move(snake, snake -> dir);
+        game_over = gameTick(snake, snake -> dir);
         SetConsoleCursorPosition(h, coord);
         printf(screen[0]);
         //while((clock() - start_time) / (float)CLOCKS_PER_SEC <= 0.25){
         if(1) {
-            Sleep(50); // 100 ms Pause
+            Sleep(50); // 50 ms Pause
             if(kbhit()){
                 taste = getch();
                 if (taste == 224) { // Sondertasten starten mit 224
@@ -165,9 +185,13 @@ int main(){
     while(!game_over);
 
     printf("\n'q' to quit.\n");
+    printf("\nPress ENTER to start the game\n");
     // Endlosschleife, bis 'q' gedrückt wird
     while (1) {
         ch = getch(); // Wartet auf einen Tastendruck
+        if (ch == 13){
+            goto STARTAGAIN;
+        }
         if (ch == 'q' || ch == 'Q') {
             break; // Schleife beenden, wenn 'q' oder 'Q' gedrückt wurde
         }
