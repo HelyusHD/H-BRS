@@ -104,15 +104,15 @@ bool gameTick(Snake *snake, Direction dir){
     // blinking death animation for death by self collision
     if(collisionWithSnake){
         for(int i = snake->size-1; i >= 0; i--){
-            screen[snake->body[0].y][snake->body[0].x] = SNAKESPACE;
             screen[snake->body[0].y][snake->body[0].x] = 'X';
             SetConsoleCursorPosition(h, coord);
             printf(screen[0]);
-            Sleep(50);
+            Sleep(25);
+            screen[snake->body[0].y][snake->body[0].x] = SNAKESPACE;
             screen[snake->body[i].y][snake->body[i].x] = EMPTYSPACE;
             SetConsoleCursorPosition(h, coord);
             printf(screen[0]);
-            Sleep(50);
+            Sleep(25);
         }
         return true;
     }
