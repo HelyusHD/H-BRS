@@ -61,16 +61,16 @@ bool gameTick(Snake *snake, Direction dir){
     Position direction = {0, 0};
     switch(dir){
         case UP :
-            if(snake->dir != DOWN){direction.y = -1;}
+            direction.y = -1;
             break;
         case DOWN:
-            if(snake->dir != UP){direction.y = 1;}
+            direction.y = 1;
             break;
         case LEFT:
-            if(snake->dir != RIGHT){direction.x = -1;}
+            direction.x = -1;
             break;
         case RIGHT:
-            if(snake->dir != LEFT){direction.x = 1;}
+            direction.x = 1;
             break;
     }
     Position snakeHead = add_position(snake->body[0], direction);
@@ -152,7 +152,7 @@ int main(){
     // ticke-clock
     do {
         start_time = clock();
-        game_over = gameTick(snake, snake -> dir);
+        game_over = gameTick(snake, snake->dir);
         SetConsoleCursorPosition(h, coord);
         printf(screen[0]);
         //while((clock() - start_time) / (float)CLOCKS_PER_SEC <= 0.25){
@@ -166,16 +166,16 @@ int main(){
                     // Verarbeitung der Pfeiltasten
                     switch (taste) {
                         case 72: // Pfeiltaste nach oben
-                            snake -> dir = UP;
+                            if(snake->dir != DOWN){snake->dir = UP;}
                         break;
                         case 80: // Pfeiltaste nach unten
-                             snake -> dir = DOWN;
+                            if(snake->dir != UP){snake->dir = DOWN;}
                         break;
                         case 75: // Pfeiltaste nach links
-                             snake -> dir = LEFT;
+                            if(snake->dir != RIGHT){snake->dir = LEFT;}
                         break;
                         case 77: // Pfeiltaste nach rechts
-                             snake -> dir = RIGHT;
+                            if(snake->dir != LEFT){snake->dir = RIGHT;}
                         break;
                     }
                 }
