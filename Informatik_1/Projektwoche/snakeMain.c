@@ -155,6 +155,7 @@ int main(){
         game_over = gameTick(snake, snake->dir);
         SetConsoleCursorPosition(h, coord);
         printf(screen[0]);
+        printf("\n\nSCORE: %i", (snake->size - initial_size)*1000);
         //while((clock() - start_time) / (float)CLOCKS_PER_SEC <= 0.25){
         if(1) {
             Sleep(50); // 50 ms Pause
