@@ -19,7 +19,7 @@
 HANDLE h;
 COORD coord;
 Food food;
-int score = 0;
+int score;
 char screen[MAX_Y][MAX_X];
 
 
@@ -137,6 +137,7 @@ int main(){
     clock_t start_time;
     char ch;
     Direction dirLast;
+    score = 0;
 
 
     Position startPos = {floor(MAX_X/2), floor(MAX_Y/2)}; // {x|y}
