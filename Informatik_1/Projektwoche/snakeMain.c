@@ -5,6 +5,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <locale.h>
+#include <math.h>
 #include "snakeLib.h"
 #include "titleScreen.h"
 
@@ -107,12 +108,12 @@ bool gameTick(Snake *snake, Direction dir){
             screen[snake->body[0].y][snake->body[0].x] = 'X';
             SetConsoleCursorPosition(h, coord);
             printf(screen[0]);
-            Sleep(25);
+            Sleep(25 * i / (snake->size-1));
             screen[snake->body[0].y][snake->body[0].x] = SNAKESPACE;
             screen[snake->body[i].y][snake->body[i].x] = EMPTYSPACE;
             SetConsoleCursorPosition(h, coord);
             printf(screen[0]);
-            Sleep(25);
+            Sleep(25 * i / (snake->size-1));
         }
         return true;
     }
@@ -134,8 +135,8 @@ int main(){
     char ch;
 
 
-    Position startPos = {10, 13}; // {x|y}
-    int initial_size = 8;
+    Position startPos = {floor(MAX_X/2), floor(MAX_Y/2)}; // {x|y}
+    int initial_size = 5;
     Direction initial_direction = RIGHT;
     Snake* snake = snake_create(initial_size, initial_direction, startPos, MAX_X * MAX_Y);
 
