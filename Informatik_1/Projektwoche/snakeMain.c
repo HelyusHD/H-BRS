@@ -18,7 +18,8 @@
 
 HANDLE h;
 COORD coord;
-Position food;
+Food food;
+int score = 0;
 char screen[MAX_Y][MAX_X];
 
 
@@ -43,16 +44,17 @@ void spawnFood(Snake* snake){
     bool foodInsideSnake;
     do{
     foodInsideSnake = false;
-    food.x = rand() % (MAX_X-1);
-    food.y = rand() % (MAX_Y-1);
+    food.pos.x = rand() % (MAX_X-1);
+    food.pos.y = rand() % (MAX_Y-1);
     for(int i=0; i < snake->size; i++){
-        if(same_position(snake->body[i],food)){
+        if(same_position(snake->body[i],food.pos)){
             foodInsideSnake = true;
             break;
         }
     }
     }while(foodInsideSnake);
-    screen[food.y][food.x] = FOODSPACE;
+    food.value = 1000;
+    screen[food.pos.y][food.pos.x] = FOODSPACE;
 }
 
 
@@ -94,9 +96,10 @@ bool gameTick(Snake *snake, Direction dir){
     snake->body[0] = snakeHead;
 
     // eating food
-    if(same_position(snakeHead, food)){
+    if(same_position(snakeHead, food.pos)){
         snake->body[snake->size] = tailBuffer;
         snake->size++;
+        score = score + food.value;
         spawnFood(snake);
     }else{
         screen[tailBuffer.y][tailBuffer.x] = EMPTYSPACE;
@@ -133,6 +136,7 @@ int main(){
     int game_over = 0;
     clock_t start_time;
     char ch;
+    Direction dirLast;
 
 
     Position startPos = {floor(MAX_X/2), floor(MAX_Y/2)}; // {x|y}
@@ -143,7 +147,7 @@ int main(){
     setlocale(LC_ALL, ""); // Setze die Locale für UTF-8
     SetConsoleCursorPosition(h, coord);
     titleScreen();
-    printf("\033[31mDies ist roter Text.\n");
+    //printf("\033[31mDies \033[32mist \033[33mroter Text.\n");
     while ((ch = getch()) != 13) {}
     system("cls"); // Terminal leeren (nur Windows)
 
@@ -152,14 +156,18 @@ int main(){
 
     // ticke-clock
     do {
+        if(dirLast){
+            if(snake->dir != dirLast && food.value > 0){food.value = food.value - 100;}
+        }
         start_time = clock();
         game_over = gameTick(snake, snake->dir);
+        dirLast = snake->dir;
         SetConsoleCursorPosition(h, coord);
         printf(screen[0]);
-        printf("\n\nSCORE: %i", (snake->size - initial_size)*1000);
+        printf("\n\nSCORE: %i\tFOOD VALUE: %i\n", score, food.value);
         //while((clock() - start_time) / (float)CLOCKS_PER_SEC <= 0.25){
         if(1) {
-            Sleep(50); // 50 ms Pause
+            Sleep(50/(sqrt(snake->size)/initial_size)); // 50 ms Pause
             if(kbhit()){
                 taste = getch();
                 if (taste == 224) { // Sondertasten starten mit 224

@@ -26,6 +26,11 @@ typedef struct{
     Direction dir;    // Aktuelle Richtung
 } Snake;
 
+typedef struct{
+    Position pos;
+    int value;
+}Food;
+
 //Funktion zur Addition von Positionen
 Position add_position(Position a, Position b){
     Position pos;
