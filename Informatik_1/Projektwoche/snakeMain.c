@@ -164,7 +164,7 @@ int main(){
         dirLast = snake->dir;
         SetConsoleCursorPosition(h, coord);
         printf(screen[0]);
-        printf("\n\nSCORE: %i\tFOOD VALUE: %i\n", score, food.value);
+        printf("\n\nSCORE: %i\tFOOD VALUE: %i        ", score, food.value);
         //while((clock() - start_time) / (float)CLOCKS_PER_SEC <= 0.25){
         if(1) {
             Sleep(50/(sqrt(snake->size)/initial_size)); // 50 ms Pause
