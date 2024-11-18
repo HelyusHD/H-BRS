@@ -77,7 +77,7 @@ bool gameTick(Snake *snake, Direction dir){
             break;
     }
     Position snakeHead = add_position(snake->body[0], direction);
-    if(snakeHead.x < 0 || snakeHead.y < 0 || snakeHead.x > MAX_X-1 || snakeHead.y > MAX_Y-1){return true;} // death by wall
+    if(snakeHead.x < 0 || snakeHead.y < 0 || snakeHead.x > MAX_X-2 || snakeHead.y > MAX_Y-1){return true;} // death by wall
 
     // setting new position of snake
     screen[snakeHead.y][snakeHead.x] = SNAKESPACE;
@@ -146,7 +146,7 @@ int main(){
     Snake* snake = snake_create(initial_size, initial_direction, startPos, MAX_X * MAX_Y);
 
     setlocale(LC_ALL, ""); // Setze die Locale für UTF-8
-    SetConsoleCursorPosition(h, coord);
+    system("cls");
     titleScreen();
     //printf("\033[31mDies \033[32mist \033[33mroter Text.\n");
     while ((ch = getch()) != 13) {}
@@ -195,8 +195,7 @@ int main(){
     } 
     while(!game_over);
 
-    printf("\n'q' to quit.\n");
-    printf("\nPress ENTER to start the game\n");
+    printf("\n'q' to quit   'ENTER' to try again\n");
     // Endlosschleife, bis 'q' gedrückt wird
     while (1) {
         ch = getch(); // Wartet auf einen Tastendruck
