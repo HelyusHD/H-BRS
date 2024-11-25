@@ -28,7 +28,7 @@ int main()
             printf("ungültige Eingabe\n");
         }else{
 
-            maxHight = sqrt((g_x - w_x)*(g_x - w_x) + (g_y - w_y)*(g_y - w_y) *100);
+            maxHight = sqrt((g_x - w_x)*(g_x - w_x) + (g_y - w_y)*(g_y - w_y)) * 100;
             printf("Die maximale Hoehe fuer das Windrad betraegt: %.2fm\n", maxHight);
         }
     }
