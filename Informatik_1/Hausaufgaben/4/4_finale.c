@@ -7,9 +7,9 @@
 #include <math.h>
 #include <conio.h>
 
-#define SCHRITTGROESSE 10  // Iterationsschrittgröße der Abtastung
-#define KARTENSCHRITTBREITE 25  // Breite der Karte in Schritten also x
-#define KARTENSCHRITTHOEHE 25    // Höhe der Karte in Schritten
+#define SCHRITTGROESSE 1  // Iterationsschrittgröße der Abtastung
+#define KARTENSCHRITTBREITE 250  // Breite der Karte in Schritten also x
+#define KARTENSCHRITTHOEHE 250    // Höhe der Karte in Schritten
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
@@ -83,6 +83,25 @@ switch (num) {
     return collored;
 }
 
+int safeData(int data[KARTENSCHRITTBREITE+1][KARTENSCHRITTHOEHE+1]){
+        FILE *file = fopen("heatmap.csv", "w");
+    if (!file) {
+        perror("Fehler beim Öffnen der Datei");
+        return 1;
+    }
+
+    for (int i = 0; i < KARTENSCHRITTBREITE+1; i++) {
+        for (int j = 0; j < KARTENSCHRITTHOEHE+1; j++) {
+            fprintf(file, "%d", data[i][j]);
+            if (j < KARTENSCHRITTHOEHE+1 - 1) fprintf(file, ","); // Komma hinzufügen außer am Ende der Zeile
+        }
+        fprintf(file, "\n"); // Neue Zeile
+    }
+
+    fclose(file);
+    return 0;
+}
+
 int main() {
     Vector2 haeuser[] = {
         { .x = 50, .y = 50 },
@@ -117,6 +136,10 @@ int main() {
             );
         }
     }
+
+    //safe data to a .csv file
+    safeData(heatMap);
+
     for (int xStep = 0; xStep <= KARTENSCHRITTBREITE; xStep ++) {
         for (int yStep = 0; yStep <= KARTENSCHRITTHOEHE; yStep ++) {
             (heatMap[xStep][yStep] <= 9 ?  printf("%s%i\033[0m ",colorMapping(heatMap[xStep][yStep]), heatMap[xStep][yStep]) :  printf("# "));
