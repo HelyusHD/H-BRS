@@ -46,7 +46,7 @@ bool same_position(Position a, Position b){
 
 // Funktionen zur Erstellung der Schlange
 // Kopf liegt bei body[0]
-Snake* snake_create(int initial_size, Direction initial_dir, Position initial_pos, int max_size){
+Snake* snake_create(int initial_size, Direction initial_dir, Position initial_pos, int max_size, int gridSize){
     Snake* snake = (Snake*)malloc(sizeof(Snake));
     snake->size = initial_size;
     snake->dir = initial_dir;
@@ -54,16 +54,16 @@ Snake* snake_create(int initial_size, Direction initial_dir, Position initial_po
     Position iterationDirection = {0, 0};
     switch(initial_dir){
         case UP :
-            iterationDirection.y = -1;
+            iterationDirection.y = -gridSize;
             break;
         case DOWN:
-            iterationDirection.y = 1;
+            iterationDirection.y = gridSize;
             break;
         case LEFT:
-            iterationDirection.x = -1;
+            iterationDirection.x = -gridSize;
             break;
         case RIGHT:
-            iterationDirection.x = 1;
+            iterationDirection.x = gridSize;
             break;
     }
 

@@ -9,10 +9,10 @@
 #include "snakeLib.h"
 #include "titleScreen.h"
 
-#define MAX_X 80
+#define MAX_X 25
 #define MAX_Y 25
 
-#define EMPTYSPACE '.'
+#define EMPTYSPACE ". \0"
 #define FOODSPACE 'O'
 #define SNAKESPACE 'S'
 
@@ -20,7 +20,7 @@ HANDLE h;
 COORD coord;
 Food food;
 int score;
-char screen[MAX_Y][MAX_X];
+char screen[MAX_Y][MAX_X*sizeof(EMPTYSPACE)];
 
 
 void initScreen(Snake* snake)
@@ -29,12 +29,12 @@ void initScreen(Snake* snake)
         for(int x = 0; x < MAX_X; x++){
             for(int i=0; i <= snake->size-1; i++){
                 Position snakePos = snake->body[i];
-                screen[y][x] = EMPTYSPACE;
+                screen[y][x*sizeof(EMPTYSPACE)] = *EMPTYSPACE;
             }
         }
-        screen[y][MAX_X-1] = '\n';
+        screen[y][MAX_X*sizeof(EMPTYSPACE)-1] = '\n';
     }
-    screen[MAX_Y-1][MAX_X] = '\0';
+    screen[MAX_Y-1][MAX_X*sizeof(EMPTYSPACE)] = '\0';
     for(int i = 0; i < snake->size; i++){
         screen[snake->body[i].y][snake->body[i].x] = SNAKESPACE;
     }
@@ -44,8 +44,8 @@ void spawnFood(Snake* snake){
     bool foodInsideSnake;
     do{
     foodInsideSnake = false;
-    food.pos.x = rand() % (MAX_X-1);
-    food.pos.y = rand() % (MAX_Y-1);
+    food.pos.x = sizeof(EMPTYSPACE) * rand() % (MAX_X-1);
+    food.pos.y = sizeof(EMPTYSPACE) * rand() % (MAX_Y-1);
     for(int i=0; i < snake->size; i++){
         if(same_position(snake->body[i],food.pos)){
             foodInsideSnake = true;
@@ -64,20 +64,20 @@ bool gameTick(Snake *snake, Direction dir){
     Position direction = {0, 0};
     switch(dir){
         case UP :
-            direction.y = -1;
+            direction.y = -sizeof(EMPTYSPACE);
             break;
         case DOWN:
-            direction.y = 1;
+            direction.y = sizeof(EMPTYSPACE);
             break;
         case LEFT:
-            direction.x = -1;
+            direction.x = -sizeof(EMPTYSPACE);
             break;
         case RIGHT:
-            direction.x = 1;
+            direction.x = sizeof(EMPTYSPACE);
             break;
     }
     Position snakeHead = add_position(snake->body[0], direction);
-    if(snakeHead.x < 0 || snakeHead.y < 0 || snakeHead.x > MAX_X-2 || snakeHead.y > MAX_Y-1){return true;} // death by wall
+    if(snakeHead.x < 0 || snakeHead.y < 0 || snakeHead.x > MAX_X*sizeof(EMPTYSPACE)-2 || snakeHead.y > MAX_Y-1){return true;} // death by wall
 
     // setting new position of snake
     screen[snakeHead.y][snakeHead.x] = SNAKESPACE;
@@ -102,7 +102,7 @@ bool gameTick(Snake *snake, Direction dir){
         score = score + food.value;
         spawnFood(snake);
     }else{
-        screen[tailBuffer.y][tailBuffer.x] = EMPTYSPACE;
+        screen[tailBuffer.y][tailBuffer.x] = *EMPTYSPACE;
     }
 
     // blinking death animation for death by self collision
@@ -113,7 +113,7 @@ bool gameTick(Snake *snake, Direction dir){
             printf(screen[0]);
             Sleep(25 * i / (snake->size-1));
             screen[snake->body[0].y][snake->body[0].x] = SNAKESPACE;
-            screen[snake->body[i].y][snake->body[i].x] = EMPTYSPACE;
+            screen[snake->body[i].y][snake->body[i].x] = *EMPTYSPACE;
             SetConsoleCursorPosition(h, coord);
             printf(screen[0]);
             Sleep(25 * i / (snake->size-1));
@@ -140,10 +140,10 @@ int main(){
     score = 0;
 
 
-    Position startPos = {floor(MAX_X/2), floor(MAX_Y/2)}; // {x|y}
+    Position startPos = {sizeof(EMPTYSPACE) * floor(MAX_X/2), sizeof(EMPTYSPACE) * floor(MAX_Y/2)}; // {x|y}
     int initial_size = 5;
     Direction initial_direction = RIGHT;
-    Snake* snake = snake_create(initial_size, initial_direction, startPos, MAX_X * MAX_Y);
+    Snake* snake = snake_create(initial_size, initial_direction, startPos, MAX_X*sizeof(EMPTYSPACE) * MAX_Y, sizeof(EMPTYSPACE));
 
     setlocale(LC_ALL, ""); // Setze die Locale für UTF-8
     system("cls");
