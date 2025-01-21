@@ -73,6 +73,24 @@ void setup()
 }
 
 void loop() {
+    if(on){
+    for (int i = 0; i < NUM_LEDS; i++) {
+        // int p = t + i*(int)floor(max_t / NUM_LEDS);
+        int p = t + i;
+        if (p > max_t) p = p - max_t;
+        rainbow_color(p, max_t, &r, &g, &b);
+        leds[i].r = r;
+        leds[i].g = g; 
+        leds[i].b = b;
+    }
+    t += 5;
+    if (t > max_t) t = 0;
+    FastLED.show();  // Update the LED strip
+    delay(DELAY_TIME);  // Delay between LED movements
+    }
+}
+
+void toggle_power(){
     if (IrReceiver.decode()) {
         uint32_t rawData= IrReceiver.decodedIRData.decodedRawData;
         Serial.print(rawData);
@@ -95,20 +113,5 @@ void loop() {
             Serial.print("pressed 1\n");
         }
         IrReceiver.resume(); 
-    }else if (on){
-    for (int i = 0; i < NUM_LEDS; i++) {
-        // int p = t + i*(int)floor(max_t / NUM_LEDS);
-        int p = t + i;
-        if (p > max_t) p = p - max_t;
-        rainbow_color(p, max_t, &r, &g, &b);
-        leds[i].r = r;
-        leds[i].g = g; 
-        leds[i].b = b;
     }
-    t += 5;
-    if (t > max_t) t = 0;
-    FastLED.show();  // Update the LED strip
-    delay(DELAY_TIME);  // Delay between LED movements
-    }
-
 }

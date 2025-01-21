@@ -1,37 +1,47 @@
-// titleScreen.h
 #include <stdio.h>
+#include <windows.h>
+#include <wchar.h>
+
 #ifndef TITLE_SCREEN_H
 #define TITLE_SCREEN_H
 
 void titleScreen() {
-    printf(
-        "################################################################################\n"
-        "#                                                                              #\n"
-        "#                                                                              #\n"
-        "#               ######     #      #     ######    #   #    ######              #\n"
-        "#               #          ##     #     #    #    #  #     #                   #\n"
-        "#               #          # #    #     #    #    # #      #                   #\n"
-        "#               ######     #   #  #     ######    ##       ######              #\n"
-        "#                    #     #    # #     #    #    # #      #                   #\n"
-        "#                    #     #     ##     #    #    #  #     #                   #\n"
-        "#               ######     #      #     #    #    #   #    ######              #\n"
-        "#                                                                              #\n"
-        "#                                                                              #\n"
-        "#                                                                              #\n"
-        "#                                                                              #\n"
-        "#                                                                              #\n"
-        "#                                                                              #\n"
-        "#                                                                              #\n"
-        "#                                                                              #\n"
-        "#                                                                              #\n"
-        "#                    Press ENTER to start the game                             #\n"
-        "#                                                                              #\n"
-        "#                    Use arrow keys to navigate the snake                      #\n"
-        "#                                                                              #\n"
-        "#                                                                              #\n"
-        "#                                                                              #\n"
-        "################################################################################\n"
-    );
+    SetConsoleOutputCP(65001); // UTF-8 aktivieren
+    SetConsoleCP(65001);
+    SetConsoleOutputCP(CP_UTF8);
+
+    const wchar_t title[] = 
+        L"################################################################################\n"
+        L"#                                                                              #\n"
+        L"#                                                                              #\n"
+        L"#                                                                              #\n"
+        L"#                                                                              #\n"
+        L"#                   ███████╗███╗   ██╗ █████╗ ██╗  ██╗███████╗                 #\n"
+        L"#                   ██╔════╝████╗  ██║██╔══██╗██║ ██╔╝██╔════╝                 #\n"
+        L"#                   ███████╗██╔██╗ ██║███████║█████╔╝ █████╗                   #\n"
+        L"#                   ╚════██║██║╚██╗██║██╔══██║██╔═██╗ ██╔══╝                   #\n"
+        L"#                   ███████║██║ ╚████║██║  ██║██║  ██╗███████╗                 #\n"
+        L"#                   ╚══════╝╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝                 #\n"
+        L"#                                                                              #\n"
+        L"#                                                                              #\n"
+        L"#                                                                              #\n"
+        L"#                                                                              #\n"
+        L"#                                                                              #\n"
+        L"#                                                                              #\n"
+        L"#                                                                              #\n"
+        L"#                                                                              #\n"
+        L"#                    Press ENTER to start the game                             #\n"
+        L"#                                                                              #\n"
+        L"#                    Use arrow keys to navigate the snake                      #\n"
+        L"#                                                                              #\n"
+        L"#                                                                              #\n"
+        L"#                                                                              #\n"
+        L"################################################################################\n";
+
+    DWORD written;
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    WriteConsoleW(hConsole, title, wcslen(title), &written, NULL);
 }
+
 
 #endif
