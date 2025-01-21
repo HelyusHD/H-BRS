@@ -7,19 +7,119 @@
 #include <math.h>
 #include "snakeLib.h"
 #include "titleScreen.h"
+#include "deathScreen.h"
+#include <string.h>
 
-#define MAX_X 20
-#define MAX_Y 20
+#define MAX_X 45
+#define MAX_Y 25
 
 #define EMPTYSPACE ". "
 #define FOODSPACE 'O'
 #define SNAKESPACE 'S'
+
+#define MAX_LINE 256
+#define MAX_ENTRIES 200
+#define TEMP_FILE "temp_score.txt"
+#define SCORE_FILE "score.txt"
 
 HANDLE h;
 COORD coord;
 Food food;
 int score;
 char screen[MAX_Y][MAX_X * 2];
+
+int safeScore(char* userName, int userScore){
+    FILE *file = fopen(SCORE_FILE, "r"); // Open file for reading
+    if (file == NULL) {
+        printf("Error opening file!\n");
+        return 1;
+    }
+
+    FILE *temp = fopen(TEMP_FILE, "w"); // Temporary file for writing updated data
+    if (temp == NULL) {
+        printf("Error opening temp file!\n");
+        fclose(file);
+        return 1;
+    }
+
+    char line[MAX_LINE];
+    int found = 0; // Flag to check if user exists
+
+    while (fgets(line, sizeof(line), file) != NULL) {
+        char name[MAX_LINE];
+        int score;
+        
+        if (sscanf(line, "%[^|]|%d", name, &score) == 2) { // Read "name|score"
+            if (strcmp(name, userName) == 0) { // Check if user exists
+                found = 1;
+                if (userScore > score) { 
+                    fprintf(temp, "%s|%d\n", name, userScore); // Update score
+                } else {
+                    fprintf(temp, "%s|%d\n", name, score); // Keep old score
+                }
+            } else {
+                fprintf(temp, "%s|%d\n", name, score); // Copy other users
+            }
+        }
+    }
+
+    // If the user wasn't found, add them
+    if (!found) {
+        fprintf(temp, "%s|%d\n", userName, userScore);
+    }
+
+    fclose(file);
+    fclose(temp);
+
+    // Replace the old file with the new one
+    remove(SCORE_FILE);
+    rename(TEMP_FILE, SCORE_FILE);
+    return 0;
+}
+
+// Struktur für einen Score-Eintrag
+typedef struct {
+    char name[MAX_LINE];
+    int score;
+} ScoreEntry;
+
+// Vergleichsfunktion für qsort (absteigende Reihenfolge)
+int compareScores(const void *a, const void *b) {
+    return ((ScoreEntry *)b)->score - ((ScoreEntry *)a)->score;
+}
+
+void displayTopScores() {
+    ScoreEntry scores[MAX_ENTRIES];
+    int count = 0;
+
+    FILE *file = fopen(SCORE_FILE, "r");
+    if (file == NULL) {
+        printf("Fehler: Konnte die Score-Datei nicht öffnen!\n");
+        return;
+    }
+
+    // Einlesen der Scores aus der Datei
+    while (fscanf(file, "%49[^|]|%d\n", scores[count].name, &scores[count].score) == 2) {
+        count++;
+        if (count >= MAX_ENTRIES) break;  // Verhindert das Überlaufen des Arrays
+    }
+    fclose(file);
+
+    if (count == 0) {
+        printf("Keine Scores vorhanden!\n");
+        return;
+    }
+
+    // Sortiere die Scores in absteigender Reihenfolge
+    qsort(scores, count, sizeof(ScoreEntry), compareScores);
+
+    // Ausgabe der Top 10 Scores
+    printf("\n===== TOP 10 SCORES =====\n");
+    for (int i = 0; i < count && i < 10; i++) {
+        printf("%d. %s - %d\n", i + 1, scores[i].name, scores[i].score);
+    }
+    printf("=========================\n");
+}
 
 void initScreen(Snake* snake) {
     for (int y = 0; y < MAX_Y; y++) {
@@ -135,7 +235,7 @@ int main() {
         setlocale(LC_ALL, ""); 
         system("cls");
         titleScreen();
-        while ((ch = getch()) != 13) {}
+        while ((ch = getch()) != 13) {if(ch =='q') return 0;}
 
         system("cls");
         initScreen(snake);
@@ -171,8 +271,30 @@ int main() {
             }
         } while (!game_over);
 
-        printf("\n'q' to quit, 'ENTER' to restart\n");
-        if (getch() == 'q') break;
+        system("cls");
+        deathScreen();
+        printf("\nSCORE: %i                            \n", score);
+
+        char input = getch();
+
+        if(input == 'q') break;
+        if(input == 's'){
+            char username[MAX_LINE];
+            printf("enter username\n");
+            scanf("%s", username);
+            safeScore(username,score);
+        }
+        if(input == 'h'){
+            displayTopScores();
+            input = getch();
+            if(input == 'q') break;
+            if(input == 's'){
+                char username[MAX_LINE];
+                printf("enter username\n");
+                scanf("%s", username);
+                safeScore(username,score);
+            }
+        }
 
         free(snake->body);
         free(snake);
